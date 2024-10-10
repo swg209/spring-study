@@ -5,9 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.suwg.springframework</groupId>
-    <artifactId>step1-bean-init</artifactId>
+    <artifactId>step2-spring-bean</artifactId>
     <version>1.0-SNAPSHOT</version>
-
     <packaging>jar</packaging>
 
     <dependencies>
@@ -70,7 +69,6 @@
             </plugin>
         </plugins>
     </build>
-
 
 
 </project>

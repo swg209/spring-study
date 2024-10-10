@@ -14,6 +14,8 @@ public class UserService {
         this.name = name;
     }
     public void queryUserInfo(){
-        System.out.println("成功获取到userService， 执行查询用户信息方法");
+        System.out.println("成功获取到userService， 查询用户信息:"+name);
     }
+
+
 }

@@ -8,13 +8,28 @@ package cn.suwg.springframework.test.bean;
  */
 public class UserService {
 
-    private String name;
+    private UserDao userDao;
 
-    public UserService(String name){
-        this.name = name;
-    }
+    private String uid;
+
     public void queryUserInfo(){
-        System.out.println("成功获取到userService， 查询用户信息:"+name);
+        System.out.println("成功获取到userService，调用userDao查询用户信息:"+userDao.queryUserName(uid));
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public UserDao getUserDao() {
+        return userDao;
+    }
+
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
     }
 
 

@@ -6,6 +6,7 @@ import cn.suwg.springframework.beans.factory.config.BeanDefinition;
 
 /**
  * bean工厂抽象类.
+ *
  * @Author: suwg
  * @Date: 2024/10/10
  * 公众号： 趣研
@@ -15,7 +16,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     @Override
     public Object getBean(String name) throws BeansException {
         Object bean = getSingleton(name);
-        if(bean != null){
+        if (bean != null) {
             return bean;
         }
 

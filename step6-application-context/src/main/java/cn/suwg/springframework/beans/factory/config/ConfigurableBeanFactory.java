@@ -21,4 +21,6 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      * 原型作用域.
      */
     String SCOPE_PROTOTYPE = "prototype";
+
+    void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
 }

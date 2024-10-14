@@ -90,6 +90,21 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         loadBeanDefinitions(resource);
     }
 
+
+    /**
+     * 从给定的位置字符串数组中加载Bean定义。
+     *
+     * @param locations 资源的位置，可以是文件路径或者URL等。
+     * @throws BeansException 如果在加载Bean定义过程中发生错误，抛出BeansException。
+     */
+    @Override
+    public void loadBeanDefinitions(String... locations) throws BeansException {
+        for (String location : locations) {
+            loadBeanDefinitions(location);
+        }
+    }
+
+
     /**
      * 从输入流中加载Bean定义。
      *

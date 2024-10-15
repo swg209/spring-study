@@ -1,5 +1,9 @@
 package cn.suwg.springframework.test.bean;
 
+import cn.suwg.springframework.beans.BeansException;
+import cn.suwg.springframework.beans.factory.DisposableBean;
+import cn.suwg.springframework.beans.factory.InitializingBean;
+
 /**
  * 用户服务.
  *
@@ -7,7 +11,7 @@ package cn.suwg.springframework.test.bean;
  * @Date: 2024/10/9
  * 公众号： 趣研
  */
-public class UserService {
+public class UserService implements InitializingBean, DisposableBean {
 
     private UserDao userDao;
 
@@ -16,6 +20,7 @@ public class UserService {
     private String company;
 
     private String location;
+
 
     public String queryUserInfo() {
         String result = "成功获取到userService，调用userDao查询用户信息. 姓名:" + userDao.queryUserName(uid)
@@ -57,4 +62,13 @@ public class UserService {
     }
 
 
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("执行: UserService.destroy销毁方法");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws BeansException {
+        System.out.println("执行: UserService.afterPropertiesSet初始化方法");
+    }
 }

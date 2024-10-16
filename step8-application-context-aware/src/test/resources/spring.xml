@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <bean id="userDao" class="cn.suwg.springframework.test.bean.UserDao" init-method="initDataMethod"
+          destroy-method="destroyDataMethod"/>
+
+    <bean id="userService" class="cn.suwg.springframework.test.bean.UserService">
+        <property name="uid" value="10003"/>
+        <property name="company" value="腾讯"/>
+        <property name="location" value="广州"/>
+        <property name="userDao" ref="userDao"/>
+    </bean>
+
+</beans>

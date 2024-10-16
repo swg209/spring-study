@@ -1,8 +1,12 @@
 package cn.suwg.springframework.test.bean;
 
 import cn.suwg.springframework.beans.BeansException;
-import cn.suwg.springframework.beans.factory.DisposableBean;
-import cn.suwg.springframework.beans.factory.InitializingBean;
+import cn.suwg.springframework.beans.factory.BeanClassLoaderAware;
+import cn.suwg.springframework.beans.factory.BeanFactory;
+import cn.suwg.springframework.beans.factory.BeanFactoryAware;
+import cn.suwg.springframework.beans.factory.BeanNameAware;
+import cn.suwg.springframework.context.ApplicationContext;
+import cn.suwg.springframework.context.ApplicationContextAware;
 
 /**
  * 用户服务.
@@ -11,7 +15,7 @@ import cn.suwg.springframework.beans.factory.InitializingBean;
  * @Date: 2024/10/9
  * 公众号： 趣研
  */
-public class UserService implements InitializingBean, DisposableBean {
+public class UserService implements BeanNameAware, BeanClassLoaderAware, ApplicationContextAware, BeanFactoryAware {
 
     private UserDao userDao;
 
@@ -20,6 +24,10 @@ public class UserService implements InitializingBean, DisposableBean {
     private String company;
 
     private String location;
+
+    private ApplicationContext applicationContext;
+
+    private BeanFactory beanFactory;
 
 
     public String queryUserInfo() {
@@ -61,14 +69,25 @@ public class UserService implements InitializingBean, DisposableBean {
         this.userDao = userDao;
     }
 
-
     @Override
-    public void destroy() throws Exception {
-        System.out.println("执行: UserService.destroy销毁方法");
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        System.out.println("BeanClassLoaderAware: ClassLoader：" + classLoader);
     }
 
     @Override
-    public void afterPropertiesSet() throws BeansException {
-        System.out.println("执行: UserService.afterPropertiesSet初始化方法");
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+        System.out.println("BeanFactoryAware：" + beanFactory);
+    }
+
+    @Override
+    public void setBeanName(String name) {
+        System.out.println("BeanNameAware: Bean Name is：" + name);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+        System.out.println("ApplicationContextAware：" + applicationContext);
     }
 }

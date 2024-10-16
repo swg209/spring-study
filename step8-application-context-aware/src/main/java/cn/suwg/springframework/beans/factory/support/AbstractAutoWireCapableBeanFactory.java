@@ -5,6 +5,10 @@ import cn.hutool.core.util.StrUtil;
 import cn.suwg.springframework.beans.BeansException;
 import cn.suwg.springframework.beans.PropertyValue;
 import cn.suwg.springframework.beans.PropertyValues;
+import cn.suwg.springframework.beans.factory.Aware;
+import cn.suwg.springframework.beans.factory.BeanClassLoaderAware;
+import cn.suwg.springframework.beans.factory.BeanFactoryAware;
+import cn.suwg.springframework.beans.factory.BeanNameAware;
 import cn.suwg.springframework.beans.factory.DisposableBean;
 import cn.suwg.springframework.beans.factory.InitializingBean;
 import cn.suwg.springframework.beans.factory.config.BeanDefinition;
@@ -62,6 +66,20 @@ public abstract class AbstractAutoWireCapableBeanFactory extends AbstractBeanFac
      * @return
      */
     private Object initializeBean(String beanName, Object bean, BeanDefinition beanDefinition) {
+        // 处理Aware标识的类. invokeAwareMethods
+        if (bean instanceof Aware) {
+            if (bean instanceof BeanFactoryAware) {
+                ((BeanFactoryAware) bean).setBeanFactory(this);
+            }
+            if (bean instanceof BeanNameAware) {
+                ((BeanNameAware) bean).setBeanName(beanName);
+            }
+            if (bean instanceof BeanClassLoaderAware) {
+                ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
+            }
+        }
+
+
         //1. 执行BeanPostProcessor Before处理
         Object wrappedBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
         //2. 执行Bean的初始化方法

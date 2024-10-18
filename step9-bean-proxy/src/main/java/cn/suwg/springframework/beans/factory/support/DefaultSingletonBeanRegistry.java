@@ -17,6 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
+
+    /**
+     * Internal marker for a null singleton object:
+     * used as marker value for concurrent Maps (which don't support null values).
+     */
+    protected static final Object NULL_OBJECT = new Object();
+
+
     private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>();
 
     private final Map<String, DisposableBean> disposableBeans = new ConcurrentHashMap<>();

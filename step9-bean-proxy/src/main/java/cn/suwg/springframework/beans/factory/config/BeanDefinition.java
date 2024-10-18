@@ -11,6 +11,14 @@ import cn.suwg.springframework.beans.PropertyValues;
  */
 public class BeanDefinition {
 
+
+    /**
+     * 作用域.
+     */
+    String SCOPE_SINGLETON = ConfigurableBeanFactory.SCOPE_SINGLETON;
+    String SCOPE_PROTOTYPE = ConfigurableBeanFactory.SCOPE_PROTOTYPE;
+
+
     /**
      * bean的类.
      */
@@ -32,6 +40,21 @@ public class BeanDefinition {
      * 销毁方法名.
      */
     private String destroyMethodName;
+
+    /**
+     * 作用域.
+     */
+    private String scope;
+
+    /**
+     * 是否单例.
+     */
+    private boolean singleton = true;
+
+    /**
+     * 是否原型.
+     */
+    private boolean prototype = false;
 
 
     /**
@@ -87,4 +110,35 @@ public class BeanDefinition {
     public void setDestroyMethodName(String destroyMethodName) {
         this.destroyMethodName = destroyMethodName;
     }
+
+
+    /**
+     * 设置作用域.
+     *
+     * @param scope
+     */
+    public void setScope(String scope) {
+        this.scope = scope;
+        this.singleton = SCOPE_SINGLETON.equals(scope);
+        this.prototype = SCOPE_PROTOTYPE.equals(scope);
+    }
+
+    /**
+     * 是否单例.
+     *
+     * @return
+     */
+    public boolean isSingleton() {
+        return singleton;
+    }
+
+    /**
+     * 是否原型.
+     *
+     * @return
+     */
+    public boolean isPrototype() {
+        return prototype;
+    }
+
 }

@@ -1,13 +1,5 @@
 package cn.suwg.springframework.test.bean;
 
-import cn.suwg.springframework.beans.BeansException;
-import cn.suwg.springframework.beans.factory.BeanClassLoaderAware;
-import cn.suwg.springframework.beans.factory.BeanFactory;
-import cn.suwg.springframework.beans.factory.BeanFactoryAware;
-import cn.suwg.springframework.beans.factory.BeanNameAware;
-import cn.suwg.springframework.context.ApplicationContext;
-import cn.suwg.springframework.context.ApplicationContextAware;
-
 /**
  * 用户服务.
  *
@@ -15,19 +7,15 @@ import cn.suwg.springframework.context.ApplicationContextAware;
  * @Date: 2024/10/9
  * 公众号： 趣研
  */
-public class UserService implements BeanNameAware, BeanClassLoaderAware, ApplicationContextAware, BeanFactoryAware {
+public class UserService {
 
-    private UserDao userDao;
+    private IUserDao userDao;
 
     private String uid;
 
     private String company;
 
     private String location;
-
-    private ApplicationContext applicationContext;
-
-    private BeanFactory beanFactory;
 
 
     public String queryUserInfo() {
@@ -61,33 +49,11 @@ public class UserService implements BeanNameAware, BeanClassLoaderAware, Applica
         this.uid = uid;
     }
 
-    public UserDao getUserDao() {
+    public IUserDao getUserDao() {
         return userDao;
     }
 
-    public void setUserDao(UserDao userDao) {
+    public void setUserDao(IUserDao userDao) {
         this.userDao = userDao;
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        System.out.println("BeanClassLoaderAware: ClassLoader：" + classLoader);
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.beanFactory = beanFactory;
-        System.out.println("BeanFactoryAware：" + beanFactory);
-    }
-
-    @Override
-    public void setBeanName(String name) {
-        System.out.println("BeanNameAware: Bean Name is：" + name);
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-        System.out.println("ApplicationContextAware：" + applicationContext);
     }
 }

@@ -32,4 +32,24 @@ public class ClassUtils {
         }
         return cl;
     }
+
+    /**
+     * 检查指定的类是否是CGLIB生成的类。
+     *
+     * @param clazz
+     * @return
+     */
+    public static boolean isCglibProxyClass(Class<?> clazz) {
+        return (clazz != null && isCglibProxyClassName(clazz.getName()));
+    }
+
+    /**
+     * 检查指定的类名是否是CGLIB生成的类。
+     *
+     * @param className
+     * @return
+     */
+    private static boolean isCglibProxyClassName(String className) {
+        return (className != null && className.contains("$$"));
+    }
 }

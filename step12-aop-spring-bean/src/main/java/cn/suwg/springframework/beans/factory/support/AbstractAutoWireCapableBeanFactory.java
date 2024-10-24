@@ -14,6 +14,7 @@ import cn.suwg.springframework.beans.factory.InitializingBean;
 import cn.suwg.springframework.beans.factory.config.BeanDefinition;
 import cn.suwg.springframework.beans.factory.config.BeanPostProcessor;
 import cn.suwg.springframework.beans.factory.config.BeanReference;
+import cn.suwg.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -33,9 +34,17 @@ public abstract class AbstractAutoWireCapableBeanFactory extends AbstractBeanFac
 
     @Override
     public Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException {
-        Object bean;
+        Object bean = null;
         try {
+            //判断是否返回代理Bean对象.
+            bean = resolveBeforeInstantiation(beanName, beanDefinition);
+            if (null != bean) {
+                return bean;
+            }
+
+            // 实例化 Bean
             bean = createBeanInstance(beanDefinition, beanName, args);
+
             // 给 Bean 填充属性信息
             applyPropertyValues(beanName, bean, beanDefinition);
 
@@ -53,6 +62,26 @@ public abstract class AbstractAutoWireCapableBeanFactory extends AbstractBeanFac
             addSingleton(beanName, bean);
         }
         return bean;
+    }
+
+    private Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) {
+        Object bean = applyBeanPostProcessorsBeforeInstantiation(beanDefinition.getBeanClass(), beanName);
+        if (null != bean) {
+            bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+        }
+        return bean;
+    }
+
+    protected Object applyBeanPostProcessorsBeforeInstantiation(Class beanClass, String beanName) {
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                Object result = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
+                if (null != result) {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
 
     private void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {

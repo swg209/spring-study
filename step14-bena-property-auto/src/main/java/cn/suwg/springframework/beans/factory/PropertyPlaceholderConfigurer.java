@@ -7,6 +7,7 @@ import cn.suwg.springframework.beans.factory.config.BeanDefinition;
 import cn.suwg.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import cn.suwg.springframework.core.io.DefaultResourceLoader;
 import cn.suwg.springframework.core.io.Resource;
+import cn.suwg.springframework.util.StringValueResolver;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -46,6 +47,8 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
             //加载属性文件
             DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
             Resource resource = resourceLoader.getResource(location);
+
+            //占位符替换属性值
             Properties properties = new Properties();
             properties.load(resource.getInputStream());
 
@@ -53,25 +56,21 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
             String[] beanDefinitionNames = beanFactory.getBeanDefinitionNames();
             for (String beanName : beanDefinitionNames) {
                 BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
+
                 PropertyValues propertyValues = beanDefinition.getPropertyValues();
                 for (PropertyValue propertyValue : propertyValues.getPropertyValues()) {
                     Object value = propertyValue.getValue();
                     if (!(value instanceof String)) {
                         continue;
                     }
-                    String strVal = (String) value;
-                    StringBuffer buffer = new StringBuffer(strVal);
-                    int startIndex = strVal.indexOf(DEFAULT_PLACEHOLDER_PREFIX);
-                    int stopIndex = strVal.indexOf(DEFAULT_PLACEHOLDER_SUFFIX);
-                    if (startIndex != -1 && stopIndex != -1 && startIndex < stopIndex) {
-                        String propKey = strVal.substring(startIndex + 2, stopIndex);
-                        String propValue = properties.getProperty(propKey);
-                        buffer.replace(startIndex, stopIndex + 1, propValue);
-                        propertyValues.addPropertyValue(new PropertyValue(propertyValue.getName(), buffer.toString()));
-                    }
+                    value = resolvePlaceholder((String) value, properties);
+                    propertyValues.addPropertyValue(new PropertyValue(propertyValue.getName(), value));
                 }
             }
 
+            //向容器中添加字符串解析器， 供解析@Value注解使用
+            StringValueResolver valueResolver = new PlaceholderResolvingStringValueResolver(properties);
+            beanFactory.addEmbeddedValueResolver(valueResolver);
 
         } catch (IOException e) {
             throw new BeansException("Could not load properties", e);
@@ -79,8 +78,35 @@ public class PropertyPlaceholderConfigurer implements BeanFactoryPostProcessor {
 
     }
 
+    //解析替换占位符.
+    private String resolvePlaceholder(String value, Properties properties) {
+        String strVal = value;
+        StringBuilder buffer = new StringBuilder(strVal);
+        int startIndex = strVal.indexOf(DEFAULT_PLACEHOLDER_PREFIX);
+        int stopIndex = strVal.indexOf(DEFAULT_PLACEHOLDER_SUFFIX);
+        if (startIndex != -1 && stopIndex != -1 && startIndex < stopIndex) {
+            String propKey = strVal.substring(startIndex + 2, stopIndex);
+            String propValue = properties.getProperty(propKey);
+            buffer.replace(startIndex, stopIndex + 1, propValue);
+        }
+        return buffer.toString();
+    }
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    private class PlaceholderResolvingStringValueResolver implements StringValueResolver {
+
+        private final Properties properties;
+
+        private PlaceholderResolvingStringValueResolver(Properties properties) {
+            this.properties = properties;
+        }
+
+        @Override
+        public String resolveStringValue(String strVal) {
+            return PropertyPlaceholderConfigurer.this.resolvePlaceholder(strVal, properties);
+        }
     }
 }

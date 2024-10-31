@@ -36,5 +36,15 @@ public interface BeanFactory {
      */
     <T> T getBean(String name, Class<T> requiredType) throws BeansException;
 
+    /**
+     * 根据类型获取bean.
+     *
+     * @param requiredType
+     * @param <T>
+     * @return
+     * @throws BeansException
+     */
+    <T> T getBean(Class<T> requiredType) throws BeansException;
+
 
 }

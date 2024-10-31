@@ -1,6 +1,7 @@
 package cn.suwg.springframework.beans.factory.config;
 
 import cn.suwg.springframework.beans.BeansException;
+import cn.suwg.springframework.beans.PropertyValues;
 
 /**
  * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback,
@@ -29,4 +30,19 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
      * @throws BeansException
      */
     Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException;
+
+
+    /**
+     * Apply this BeanPostProcessor <i>after the target bean gets instantiated</i>.
+     * The returned bean object may be a proxy to use instead of the target bean,
+     * effectively suppressing default instantiation of the target bean.
+     * <p>
+     * 在 Bean 对象执行初始化方法之后，执行此方法
+     *
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    PropertyValues postProcessPropertyValues(PropertyValues pvs, Object bean, String beanName) throws BeansException;
 }

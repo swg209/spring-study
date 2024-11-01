@@ -1,16 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-	         http://www.springframework.org/schema/beans/spring-beans.xsd
-		 http://www.springframework.org/schema/context">
+	         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean class="cn.suwg.springframework.beans.factory.PropertyPlaceholderConfigurer">
-        <property name="location" value="classpath:token.properties"/>
+
+    <bean id="userService" class="cn.suwg.springframework.test.bean.UserService">
+        <property name="token" value="suwg1234567890"/>
     </bean>
 
+    <bean class="cn.suwg.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
 
-    <context:component-scan base-package="cn.suwg.springframework.test.bean"/>
+    <bean id="beforeAdvice" class="cn.suwg.springframework.test.bean.UserServiceBeforeAdvice"/>
+
+    <bean id="methodInterceptor"
+          class="cn.suwg.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor">
+        <property name="advice" ref="beforeAdvice"/>
+    </bean>
+
+    <bean id="pointcutAdvisor" class="cn.suwg.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor">
+        <property name="expression" value="execution(* cn.suwg.springframework.test.bean.IUserService.*(..))"/>
+        <property name="advice" ref="methodInterceptor"/>
+    </bean>
 
 </beans>

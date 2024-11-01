@@ -1,23 +1,15 @@
 package cn.suwg.springframework.test.bean;
 
-import cn.suwg.springframework.beans.factory.annotation.Autowired;
-import cn.suwg.springframework.beans.factory.annotation.Value;
-import cn.suwg.springframework.stereotype.Component;
-
 import java.util.Random;
 
 /**
  * @Author: suwg
  * @Date: 2024/10/22
  */
-@Component("userService")
 public class UserService implements IUserService {
 
-    @Value("${token}")
     private String token;
 
-    @Autowired
-    private UserDao userDao;
 
     @Override
     public String queryUserInfo() {
@@ -26,7 +18,7 @@ public class UserService implements IUserService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return userDao.queryUserName("10001") + "，" + token;
+        return "小苏，111111，广州" + "，" + token;
     }
 
     @Override
@@ -52,11 +44,4 @@ public class UserService implements IUserService {
         this.token = token;
     }
 
-    public UserDao getUserDao() {
-        return userDao;
-    }
-
-    public void setUserDao(UserDao userDao) {
-        this.userDao = userDao;
-    }
 }

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.suwg.springframework</groupId>
-    <artifactId>step14-bena-property-auto</artifactId>
+    <artifactId>step14-bean-property-auto</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>

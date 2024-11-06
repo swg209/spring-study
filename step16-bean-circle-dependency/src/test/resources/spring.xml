@@ -5,13 +5,23 @@
 	         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 
-    <bean id="userService" class="cn.suwg.springframework.test.bean.UserService">
-        <property name="token" value="suwg1234567890"/>
+    <bean id="husband" class="cn.suwg.springframework.test.bean.Husband">
+        <property name="wife" ref="wife"/>
     </bean>
 
+    <bean id="husbandMother" class="cn.suwg.springframework.test.bean.HusbandMother"/>
+
+
+    <bean id="wife" class="cn.suwg.springframework.test.bean.Wife">
+        <property name="husband" ref="husband"/>
+        <property name="mother" ref="husbandMother"/>
+    </bean>
+
+
+    <!--    AOP配置，可以验证三级缓存.-->
     <bean class="cn.suwg.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
 
-    <bean id="beforeAdvice" class="cn.suwg.springframework.test.bean.UserServiceBeforeAdvice"/>
+    <bean id="beforeAdvice" class="cn.suwg.springframework.test.bean.SpouseAdvice"/>
 
     <bean id="methodInterceptor"
           class="cn.suwg.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor">
@@ -19,7 +29,7 @@
     </bean>
 
     <bean id="pointcutAdvisor" class="cn.suwg.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor">
-        <property name="expression" value="execution(* cn.suwg.springframework.test.bean.IUserService.*(..))"/>
+        <property name="expression" value="execution(* cn.suwg.springframework.test.bean.Wife.*(..))"/>
         <property name="advice" ref="methodInterceptor"/>
     </bean>
 

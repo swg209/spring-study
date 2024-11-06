@@ -17,6 +17,9 @@ import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * BeanPostProcessor implementation that creates AOP proxies based on all candidate
@@ -30,8 +33,8 @@ import java.util.Collection;
  */
 public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
 
+    private final Set<Object> earlyProxyReferences = Collections.synchronizedSet(new HashSet<Object>());
     private DefaultListableBeanFactory beanFactory;
-
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -98,5 +101,48 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
         return Advice.class.isAssignableFrom(beanClass)
                 || Pointcut.class.isAssignableFrom(beanClass)
                 || Advisor.class.isAssignableFrom(beanClass);
+    }
+
+
+    /**
+     * 获取早期引用，半成品.
+     *
+     * @param bean
+     * @param beanName
+     * @return
+     */
+    @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) {
+        earlyProxyReferences.add(beanName);
+        return wrapIfNecessary(bean, beanName);
+    }
+
+    protected Object wrapIfNecessary(Object bean, String beanName) {
+        if (isInfrastructureClass(bean.getClass())) {
+            return bean;
+        }
+
+        Collection<AspectJExpressionPointcutAdvisor> advisors = beanFactory.getBeansOfType(AspectJExpressionPointcutAdvisor.class).values();
+
+        for (AspectJExpressionPointcutAdvisor advisor : advisors) {
+            ClassFilter classFilter = advisor.getPointcut().getClassFilter();
+            //过滤匹配类
+            if (!classFilter.matches(bean.getClass())) {
+                continue;
+            }
+            AdvisedSupport advisedSupport = new AdvisedSupport();
+
+            TargetSource targetSource = new TargetSource(bean);
+            advisedSupport.setTargetSource(targetSource);
+            advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
+            advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
+            //这里需要修改为true， 不然proxy代理的对象是没有实现接口的.
+            //这导致在不使用目标类的情况下创建代理。如果目标类没有实现任何接口，这可能会导致问题，因为代理将无法正确委托方法调用。
+            advisedSupport.setProxyTargetClass(true);
+
+            //返回代理对象.
+            return new ProxyFactory(advisedSupport).getProxy();
+        }
+        return bean;
     }
 }

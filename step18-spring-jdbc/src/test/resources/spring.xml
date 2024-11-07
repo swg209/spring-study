@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	         http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="husband" class="cn.suwg.springframework.test.bean.Husband">
+        <property name="wifeName" value="老老"/>
+        <property name="marriageDate" value="2022-04-14"/>
+    </bean>
+
+    <bean id="conversionService" class="cn.suwg.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters" ref="converters"/>
+    </bean>
+
+    <bean id="converters" class="cn.suwg.springframework.test.converter.ConvertersFactoryBean"/>
+</beans>

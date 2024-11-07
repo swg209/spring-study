@@ -5,6 +5,7 @@ import cn.suwg.springframework.beans.factory.FactoryBean;
 import cn.suwg.springframework.beans.factory.config.BeanDefinition;
 import cn.suwg.springframework.beans.factory.config.BeanPostProcessor;
 import cn.suwg.springframework.beans.factory.config.ConfigurableBeanFactory;
+import cn.suwg.springframework.core.convert.ConversionService;
 import cn.suwg.springframework.util.ClassUtils;
 import cn.suwg.springframework.util.StringValueResolver;
 
@@ -33,6 +34,25 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      */
     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
+    // 类型转换服务.
+    private ConversionService conversionService;
+
+    @Override
+    public ConversionService getConversionService() {
+        return conversionService;
+    }
+
+    @Override
+    public void setConversionService(ConversionService conversionService) {
+        this.conversionService = conversionService;
+    }
+
+    @Override
+    public boolean containsBean(String name) {
+        return containsBeanDefinition(name);
+    }
+
+    protected abstract boolean containsBeanDefinition(String name);
 
     @Override
     public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
@@ -68,6 +88,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return (T) getBean(name);
     }
 
+
     /**
      * 获取Bean，这里用了T泛型，方便输出对应类的bean.
      *
@@ -83,7 +104,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             return (T) getObjectForBeanInstance(sharedInstance, name);
         }
         BeanDefinition beanDefinition = getBeanDefinition(name);
-        return (T) createBean(name, beanDefinition, args);
+        Object bean = createBean(name, beanDefinition, args);
+        return (T) getObjectForBeanInstance(bean, name);
     }
 
     /**

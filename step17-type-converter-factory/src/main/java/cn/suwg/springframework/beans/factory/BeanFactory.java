@@ -46,5 +46,10 @@ public interface BeanFactory {
      */
     <T> T getBean(Class<T> requiredType) throws BeansException;
 
+    /**
+     * 判断对应名称的Bean是否存在.
+     */
+    boolean containsBean(String name);
+
 
 }

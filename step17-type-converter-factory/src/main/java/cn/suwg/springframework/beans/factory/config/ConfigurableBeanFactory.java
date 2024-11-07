@@ -1,7 +1,9 @@
 package cn.suwg.springframework.beans.factory.config;
 
 import cn.suwg.springframework.beans.factory.HierarchicalBeanFactory;
+import cn.suwg.springframework.core.convert.ConversionService;
 import cn.suwg.springframework.util.StringValueResolver;
+import com.sun.istack.internal.Nullable;
 
 /**
  * 这个接口扩展了HierarchicalBeanFactory和SingletonBeanRegistry，
@@ -46,4 +48,20 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      * @since 3.0
      */
     String resolveEmbeddedValue(String value);
+
+    /**
+     * Return the associated ConversionService, if any.
+     *
+     * @since 3.0
+     */
+    @Nullable
+    ConversionService getConversionService();
+
+    /**
+     * Specify a Spring 3.0 ConversionService to use for converting
+     * property values, as an alternative to JavaBeans PropertyEditors.
+     *
+     * @since 3.0
+     */
+    void setConversionService(ConversionService conversionService);
 }

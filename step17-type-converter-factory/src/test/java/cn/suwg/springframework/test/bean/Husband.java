@@ -1,23 +1,38 @@
 package cn.suwg.springframework.test.bean;
 
+import java.time.LocalDate;
+
 /**
  * @Author: suwg
  * @Date: 2024/11/5
  */
 public class Husband {
 
-    private Wife wife;
+    private String wifeName;
 
+    private LocalDate marriageDate;
 
-    public String queryWife() {
-        return "Husband.wife";
+    public String getWifeName() {
+        return wifeName;
     }
 
-    public Wife getWife() {
-        return wife;
+    public void setWifeName(String wifeName) {
+        this.wifeName = wifeName;
     }
 
-    public void setWife(Wife wife) {
-        this.wife = wife;
+    public LocalDate getMarriageDate() {
+        return marriageDate;
+    }
+
+    public void setMarriageDate(LocalDate marriageDate) {
+        this.marriageDate = marriageDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Husband{" +
+                "wifeName='" + wifeName + '\'' +
+                ", marriageDate=" + marriageDate +
+                '}';
     }
 }

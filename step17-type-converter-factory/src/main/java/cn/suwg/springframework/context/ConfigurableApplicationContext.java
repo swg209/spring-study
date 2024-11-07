@@ -1,5 +1,7 @@
 package cn.suwg.springframework.context;
 
+import cn.suwg.springframework.beans.BeansException;
+
 /**
  * 应用上下文扩展接口.
  * <p>
@@ -17,7 +19,7 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
      *
      * @throws Exception
      */
-    void refresh() throws Exception;
+    void refresh() throws BeansException;
 
     /**
      * 注册调用关闭钩子.

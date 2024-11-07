@@ -1,12 +1,14 @@
 package cn.suwg.springframework.beans.factory.annotation;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.TypeUtil;
 import cn.suwg.springframework.beans.BeansException;
 import cn.suwg.springframework.beans.PropertyValues;
 import cn.suwg.springframework.beans.factory.BeanFactory;
 import cn.suwg.springframework.beans.factory.BeanFactoryAware;
 import cn.suwg.springframework.beans.factory.ConfigurableListableBeanFactory;
 import cn.suwg.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import cn.suwg.springframework.core.convert.ConversionService;
 import cn.suwg.springframework.util.ClassUtils;
 
 import java.lang.reflect.Field;
@@ -41,8 +43,20 @@ public class AutowiredAnnotationBeanPostProcessor implements InstantiationAwareB
         for (Field field : declaredField) {
             Value valueAnnotation = field.getAnnotation(Value.class);
             if (null != valueAnnotation) {
-                String value = valueAnnotation.value();
-                value = beanFactory.resolveEmbeddedValue(value);
+                Object value = valueAnnotation.value();
+                value = beanFactory.resolveEmbeddedValue((String) value);
+
+                //类型转换
+                Class<?> sourceType = value.getClass();
+                Class<?> targetType = (Class<?>) TypeUtil.getType(field);
+                ConversionService conversionService = beanFactory.getConversionService();
+                if (conversionService != null) {
+                    if (conversionService.canConvert(sourceType, targetType)) {
+                        value = conversionService.convert(value, targetType);
+                    }
+                }
+
+
                 // 设置字段值
                 BeanUtil.setFieldValue(bean, field.getName(), value);
             }

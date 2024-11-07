@@ -104,6 +104,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
             return (T) getObjectForBeanInstance(sharedInstance, name);
         }
         BeanDefinition beanDefinition = getBeanDefinition(name);
+        //这里修正step16的bug，修正后的代码如下，创建bean后，需要调用getObjectForBeanInstance，完成实例化.
         Object bean = createBean(name, beanDefinition, args);
         return (T) getObjectForBeanInstance(bean, name);
     }

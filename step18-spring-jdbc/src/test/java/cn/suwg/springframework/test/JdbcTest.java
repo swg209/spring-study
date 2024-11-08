@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Description: 测试类
  * @Author: suwg
- * @Date: 2024/10/10
- * 公众号： 趣研x
+ * @Date: 2024/11/8
  */
-public class ApiTest {
+public class JdbcTest {
+
     private JdbcTemplate jdbcTemplate;
 
     @Before
@@ -23,6 +22,10 @@ public class ApiTest {
         jdbcTemplate = applicationContext.getBean(JdbcTemplate.class);
     }
 
+
+    /**
+     * 建表.
+     */
 
     @Test
     public void executeSqlTest() {
@@ -33,6 +36,15 @@ public class ApiTest {
                 "        PRIMARY KEY (`id`),\n" +
                 "        UNIQUE KEY `user_id_uindex` (`id`)\n" +
                 ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci");
+    }
+
+    /**
+     * 插入数据.
+     */
+    @Test
+    public void executeInsertSqlTest() {
+        //插入语句
+        jdbcTemplate.execute("INSERT INTO user (username) values ('小苏');");
     }
 
 

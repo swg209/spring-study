@@ -30,12 +30,11 @@ public class JdbcTest {
     @Test
     public void executeSqlTest() {
 
-        jdbcTemplate.execute("        CREATE TABLE `user` (\n" +
-                "  `id` int NOT NULL AUTO_INCREMENT,\n" +
-                "  `username` varchar(100) DEFAULT NULL,\n" +
-                "        PRIMARY KEY (`id`),\n" +
-                "        UNIQUE KEY `user_id_uindex` (`id`)\n" +
-                ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci");
+        jdbcTemplate.execute("CREATE TABLE user (\n" +
+                "  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',\n" +
+                "  `username` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '用户名',\n" +
+                "  PRIMARY KEY (id)\n" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';");
     }
 
     /**

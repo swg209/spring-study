@@ -14,10 +14,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
     @Override
     public SqlSession openSession() {
-        // 读取配置
-
         // 创建会话
-
         return new DefaultSqlSession(configuration.connection, configuration.mapperElement);
     }
 }

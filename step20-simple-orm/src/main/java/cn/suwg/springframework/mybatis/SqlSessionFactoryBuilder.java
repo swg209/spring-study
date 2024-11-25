@@ -6,6 +6,7 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.InputSource;
 
+import java.io.InputStream;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,6 +36,18 @@ public class SqlSessionFactoryBuilder {
         SAXReader saxReader = new SAXReader();
         try {
             Document document = saxReader.read(new InputSource(reader));
+            Configuration configuration = parseConfiguration(document.getRootElement());
+            return new DefaultSqlSessionFactory(configuration);
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public DefaultSqlSessionFactory build(InputStream inputStream) {
+        SAXReader saxReader = new SAXReader();
+        try {
+            Document document = saxReader.read(inputStream);
             Configuration configuration = parseConfiguration(document.getRootElement());
             return new DefaultSqlSessionFactory(configuration);
         } catch (DocumentException e) {

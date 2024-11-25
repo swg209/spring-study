@@ -4,6 +4,8 @@ import cn.suwg.springframework.beans.BeansException;
 import cn.suwg.springframework.beans.factory.ConfigurableListableBeanFactory;
 import cn.suwg.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import cn.suwg.springframework.beans.factory.config.BeanPostProcessor;
+import cn.suwg.springframework.beans.factory.support.BeanDefinitionRegistry;
+import cn.suwg.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import cn.suwg.springframework.context.ApplicationEvent;
 import cn.suwg.springframework.context.ApplicationListener;
 import cn.suwg.springframework.context.ConfigurableApplicationContext;
@@ -134,6 +136,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         Map<String, BeanFactoryPostProcessor> beanFactoryPostProcessorMap = beanFactory.getBeansOfType(BeanFactoryPostProcessor.class);
         for (BeanFactoryPostProcessor beanFactoryPostProcessor : beanFactoryPostProcessorMap.values()) {
             beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+        }
+
+        // 注册对象
+        if (beanFactory instanceof BeanDefinitionRegistry) {
+            BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
+            for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessorMap.values()) {
+                if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
+                    BeanDefinitionRegistryPostProcessor registryProcessor = (BeanDefinitionRegistryPostProcessor) postProcessor;
+                    registryProcessor.postProcessBeanDefinitionRegistry(registry);
+                }
+            }
         }
 
     }

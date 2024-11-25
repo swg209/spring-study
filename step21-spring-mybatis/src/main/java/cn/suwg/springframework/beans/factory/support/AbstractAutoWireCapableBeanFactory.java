@@ -2,7 +2,6 @@ package cn.suwg.springframework.beans.factory.support;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.TypeUtil;
 import cn.suwg.springframework.beans.BeansException;
 import cn.suwg.springframework.beans.PropertyValue;
 import cn.suwg.springframework.beans.PropertyValues;
@@ -17,11 +16,11 @@ import cn.suwg.springframework.beans.factory.config.BeanDefinition;
 import cn.suwg.springframework.beans.factory.config.BeanPostProcessor;
 import cn.suwg.springframework.beans.factory.config.BeanReference;
 import cn.suwg.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
-import cn.suwg.springframework.core.convert.ConversionService;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * 自动创建bean工厂抽象类.
@@ -32,6 +31,7 @@ import java.util.Objects;
  */
 public abstract class AbstractAutoWireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
+    private static final Logger logger = Logger.getLogger(AbstractAutoWireCapableBeanFactory.class.getName());
 
     private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
 
@@ -204,7 +204,7 @@ public abstract class AbstractAutoWireCapableBeanFactory extends AbstractBeanFac
         return wrappedBean;
     }
 
-    private Object applyBeanPostProcessorsBeforeInitialization(Object existBean, String beanName) {
+    private Object applyBeanPostProcessorsBeforeInitialization(Object existBean, String beanName) throws BeansException {
         Object result = existBean;
         for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
             Object current = beanPostProcessor.postProcessBeforeInitialization(result, beanName);
@@ -273,17 +273,6 @@ public abstract class AbstractAutoWireCapableBeanFactory extends AbstractBeanFac
                     // A依赖B, 获取B的实例化
                     BeanReference beanReference = (BeanReference) value;
                     value = getBean(beanReference.getBeanName());
-                } else {
-                    //处理类型转换
-                    Class<?> sourceType = value.getClass();
-                    Class<?> targetType = (Class<?>) TypeUtil.getFieldType(bean.getClass(), name);
-                    ConversionService conversionService = getConversionService();
-                    if (null != conversionService) {
-                        if (conversionService.canConvert(sourceType, targetType)) {
-                            value = conversionService.convert(value, targetType);
-                        }
-                    }
-
                 }
 
                 //属性填充.

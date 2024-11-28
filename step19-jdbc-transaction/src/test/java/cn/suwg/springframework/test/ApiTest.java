@@ -59,10 +59,10 @@ public class ApiTest {
         JdbcService proxy_cglib = (JdbcService) new Cglib2AopProxy(advisedSupport).getProxy();
 
         // 测试调用，有事务【不能同时提交2条有主键冲突的数据】
-        proxy_cglib.saveData(jdbcTemplate);
+        //proxy_cglib.saveData(jdbcTemplate);
 
         // 测试调用，无事务【提交2条有主键冲突的数据成功一条】
-        //proxy_cglib.saveDataWithoutTx(jdbcTemplate);
+        proxy_cglib.saveDataWithoutTx(jdbcTemplate);
 
     }
 

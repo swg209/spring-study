@@ -1,12 +1,20 @@
 package cn.suwg.springframework.test;
 
+import cn.suwg.springframework.aop.AdvisedSupport;
+import cn.suwg.springframework.aop.TargetSource;
+import cn.suwg.springframework.aop.aspectj.AspectJExpressionPointcut;
+import cn.suwg.springframework.aop.framework.Cglib2AopProxy;
 import cn.suwg.springframework.context.support.ClassPathXmlApplicationContext;
+import cn.suwg.springframework.jdbc.datasource.DataSourceTransactionManager;
 import cn.suwg.springframework.jdbc.support.JdbcTemplate;
+import cn.suwg.springframework.test.bean.JdbcService;
+import cn.suwg.springframework.tx.transaction.annotation.AnnotationTransactionAttributeSource;
+import cn.suwg.springframework.tx.transaction.interceptor.TransactionInterceptor;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
+import javax.sql.DataSource;
+import java.sql.SQLException;
 
 /**
  * @Description: 测试类
@@ -17,88 +25,45 @@ import java.util.Map;
 public class ApiTest {
     private JdbcTemplate jdbcTemplate;
 
+    private JdbcService jdbcService;
+
+    private DataSource dataSource;
+
     @Before
     public void init() {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
         jdbcTemplate = applicationContext.getBean(JdbcTemplate.class);
+        dataSource = applicationContext.getBean(DataSource.class);
+        jdbcService = applicationContext.getBean(JdbcService.class);
     }
 
 
     @Test
-    public void executeSqlTest() {
+    public void testTransaction() throws SQLException {
+        // 事务属性源
+        AnnotationTransactionAttributeSource transactionAttributeSource = new AnnotationTransactionAttributeSource();
+        // 获取事务属性
+        transactionAttributeSource.findTransactionAttribute(jdbcService.getClass());
 
-        jdbcTemplate.execute("CREATE TABLE user (\n" +
-                "  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键id',\n" +
-                "  `username` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '用户名',\n" +
-                "  PRIMARY KEY (id)\n" +
-                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';");
+        // 事务管理器
+        DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+        TransactionInterceptor interceptor = new TransactionInterceptor(transactionManager, transactionAttributeSource);
+
+        // 组装代理信息
+        AdvisedSupport advisedSupport = new AdvisedSupport();
+        advisedSupport.setTargetSource(new TargetSource(jdbcService));
+        advisedSupport.setMethodInterceptor(interceptor);
+        advisedSupport.setMethodMatcher(new AspectJExpressionPointcut("execution(* cn.suwg.springframework.test.bean.JdbcService.*(..))"));
+
+        // 代理对象(Cglib2AopProxy)
+        JdbcService proxy_cglib = (JdbcService) new Cglib2AopProxy(advisedSupport).getProxy();
+
+        // 测试调用，有事务【不能同时提交2条有主键冲突的数据】
+        proxy_cglib.saveData(jdbcTemplate);
+
+        // 测试调用，无事务【提交2条有主键冲突的数据成功一条】
+        //proxy_cglib.saveDataWithoutTx(jdbcTemplate);
+
     }
 
-    /**
-     * 插入数据.
-     */
-    @Test
-    public void executeInsertSqlTest() {
-        //插入语句
-        jdbcTemplate.execute("INSERT INTO user (username) values ('小苏');");
-    }
-
-
-    @Test
-    public void queryForListTest() {
-        List<Map<String, Object>> allResult = jdbcTemplate.queryForList("select * from user");
-        for (int i = 0; i < allResult.size(); i++) {
-            System.out.printf("第%d行数据", i + 1);
-            Map<String, Object> objectMap = allResult.get(i);
-            System.out.println(objectMap);
-        }
-    }
-
-    @Test
-    public void queryListWithColumnClassTypeTest() {
-        List<String> allResult = jdbcTemplate.queryForList("select username from user", String.class);
-        for (int i = 0; i < allResult.size(); i++) {
-            System.out.printf("第%d行数据", i + 1);
-            String username = allResult.get(i);
-            System.out.println(username);
-        }
-    }
-
-    @Test
-    public void queryListWithColumnClassTypeWithArgTest() {
-        List<String> allResult = jdbcTemplate.queryForList("select username from user where id=?", String.class, 1);
-        for (int i = 0; i < allResult.size(); i++) {
-            System.out.printf("第%d行数据", i + 1);
-            String username = allResult.get(i);
-            System.out.println(username);
-        }
-    }
-
-    @Test
-    public void queryListWithArgTest() {
-        List<Map<String, Object>> allResult = jdbcTemplate.queryForList("select * from user where id=?", 1);
-        for (int i = 0; i < allResult.size(); i++) {
-            System.out.printf("第%d行数据", i + 1);
-            Map<String, Object> row = allResult.get(i);
-            System.out.println(row);
-        }
-    }
-
-    @Test
-    public void queryObjectTest() {
-        String username = jdbcTemplate.queryForObject("select username from user where id=1", String.class);
-        System.out.println(username);
-    }
-
-    @Test
-    public void queryMapTest() {
-        Map<String, Object> row = jdbcTemplate.queryForMap("select * from user where id=1");
-        System.out.println(row);
-    }
-
-    @Test
-    public void queryMapWithArgTest() {
-        Map<String, Object> row = jdbcTemplate.queryForMap("select * from user where id=?", 1);
-        System.out.println(row);
-    }
 }

@@ -114,7 +114,7 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
             String sql = getSql(action);
             JdbcUtils.closeStatement(stmt);
             stmt = null;
-            throw translateException("ConnectionCallback", sql, e);
+            throw new UncategorizedSQLException("ConnectionCallback", sql, e);
         } finally {
             if (closeResources) {
                 JdbcUtils.closeStatement(stmt);

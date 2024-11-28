@@ -1,7 +1,5 @@
 package cn.suwg.springframework.beans.factory;
 
-import cn.suwg.springframework.beans.BeansException;
-
 /**
  * Interface to be implemented by beans that need to react once all their
  * properties have been set by a BeanFactory: for example, to perform custom
@@ -18,7 +16,7 @@ public interface InitializingBean {
     /**
      * 初始化方法, 在Bean处理完属性填充后调用.
      */
-    void afterPropertiesSet() throws BeansException;
+    void afterPropertiesSet() throws Exception;
 
 
 }

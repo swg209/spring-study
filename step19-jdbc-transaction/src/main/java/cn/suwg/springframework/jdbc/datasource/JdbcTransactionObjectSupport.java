@@ -1,8 +1,9 @@
 package cn.suwg.springframework.jdbc.datasource;
 
 /**
- * @Author: suwg
- * @Date: 2024/11/25
+ * @description Convenient base class for JDBC-aware transaction objects.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public abstract class JdbcTransactionObjectSupport {
 
@@ -19,4 +20,5 @@ public abstract class JdbcTransactionObjectSupport {
     public boolean hasConnectionHolder() {
         return null != this.connectionHolder;
     }
+
 }

@@ -9,22 +9,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * @Author: suwg
- * @Date: 2024/11/8
+ * @description Map2Row
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public class ColumnMapRowMapper implements RowMapper<Map<String, Object>> {
 
-
     @Override
     public Map<String, Object> mapRow(ResultSet rs, int rowNum) throws SQLException {
-        ResultSetMetaData metaData = rs.getMetaData();
-        int columnCount = metaData.getColumnCount();
-        Map<String, Object> mapOfColumnValues = createColumnMap(rs.getMetaData().getColumnCount());
+        ResultSetMetaData rsMetaData = rs.getMetaData();
+        int columnCount = rsMetaData.getColumnCount();
+        Map<String, Object> mapOfColumnValues = createColumnMap(columnCount);
         for (int i = 1; i <= columnCount; i++) {
-            String columnName = JdbcUtils.lookupColumnName(metaData, i);
+            String columnName = JdbcUtils.lookupColumnName(rsMetaData, i);
             mapOfColumnValues.putIfAbsent(getColumnKey(columnName), getColumnValue(rs, i));
         }
         return mapOfColumnValues;
+    }
+
+    protected Map<String, Object> createColumnMap(int columnCount) {
+        return new LinkedHashMap<>(columnCount);
     }
 
     protected String getColumnKey(String columnName) {
@@ -35,7 +39,4 @@ public class ColumnMapRowMapper implements RowMapper<Map<String, Object>> {
         return JdbcUtils.getResultSetValue(rs, index);
     }
 
-    private Map<String, Object> createColumnMap(int columnCount) {
-        return new LinkedHashMap<>(columnCount);
-    }
 }

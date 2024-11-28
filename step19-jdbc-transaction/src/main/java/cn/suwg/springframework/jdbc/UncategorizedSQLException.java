@@ -1,8 +1,10 @@
 package cn.suwg.springframework.jdbc;
 
 /**
- * @Author: suwg
- * @Date: 2024/11/8
+ * @description Exception thrown when we can't classify an SQLException into
+ * one of our generic data access exceptions.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public class UncategorizedSQLException extends RuntimeException {
 

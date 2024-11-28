@@ -5,60 +5,52 @@ import cn.hutool.core.lang.Assert;
 import java.sql.Connection;
 
 /**
- * Resource holder wrapping a JDBC Connection.
- * DataSourceTransactionManager binds instances of this class
- * to the thread, for a specific {@link javax.sql.DataSource}.
- * <p>
- * 连接持有者.
- *
- * @Author: suwg
- * @Date: 2024/11/8
- * 公众号：趣研
+ * @description Resource holder wrapping a JDBC {@link Connection}.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public class ConnectionHolder {
 
-    private ConnectionHandler connectionHandler;
+    private ConnectionHandle connectionHandle;
 
     private Connection currentConnection;
 
-    public ConnectionHolder(ConnectionHandler connectionHandler) {
-        this.connectionHandler = connectionHandler;
+    public ConnectionHolder(ConnectionHandle connectionHandle) {
+        this.connectionHandle = connectionHandle;
     }
 
     public ConnectionHolder(Connection connection) {
-        this.connectionHandler = new SimpleConnectionHandler(connection);
+        this.connectionHandle = new SimpleConnectionHandle(connection);
     }
 
-    public ConnectionHandler getConnectionHandler() {
-        return connectionHandler;
+    public ConnectionHandle getConnectionHandle() {
+        return connectionHandle;
     }
 
-    protected boolean hasConnectionHandler() {
-        return this.connectionHandler != null;
+    protected boolean hasConnection() {
+        return this.connectionHandle != null;
     }
 
     protected Connection getConnection() {
-        Assert.notNull(this.connectionHandler, "Active connection is required.");
+        Assert.notNull(this.connectionHandle, "Active connection is required.");
         if (null == this.currentConnection) {
-            this.currentConnection = this.connectionHandler.getConnection();
+            this.currentConnection = this.connectionHandle.getConnection();
         }
         return this.currentConnection;
     }
 
     protected void setConnection(Connection connection) {
         if (null != this.currentConnection) {
-            if (null != this.connectionHandler) {
-                this.connectionHandler.releaseConnection(this.currentConnection);
+            if (null != this.connectionHandle) {
+                this.connectionHandle.releaseConnection(this.currentConnection);
             }
             this.currentConnection = null;
         }
-
         if (null != connection) {
-            this.connectionHandler = new SimpleConnectionHandler(connection);
+            this.connectionHandle = new SimpleConnectionHandle(connection);
         } else {
-            this.connectionHandler = null;
+            this.connectionHandle = null;
         }
-
     }
 
 }

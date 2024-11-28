@@ -1,65 +1,35 @@
 package cn.suwg.springframework.jdbc.support;
 
 import cn.hutool.core.util.StrUtil;
-import cn.suwg.springframework.util.NumberUtils;
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
 
-import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Date;
 
 /**
- * jdbc工具类.
- *
- * @Author: suwg
- * @Date: 2024/11/8
- * 公众号：趣研
+ * @description Generic utility methods for working with JDBC. Mainly for internal use
+ * within the framework, but also useful for custom JDBC access code.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public class JdbcUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(JdbcUtils.class);
-
     /**
-     * 关闭Statement.
+     * Determine the column name to use. The column name is determined based on a
+     * lookup using ResultSetMetaData.
+     * <p>This method implementation takes into account recent clarifications
+     * expressed in the JDBC 4.0 specification:
+     * <p><i>columnLabel - the label for the column specified with the SQL AS clause.
+     * If the SQL AS clause was not specified, then the label is the name of the column</i>.
      *
-     * @param stmt
-     */
-    public static void closeStatement(Statement stmt) {
-        if (stmt != null) {
-            try {
-                stmt.close();
-            } catch (SQLException e) {
-                logger.trace("Could not close JDBC statement " + e);
-            }
-        }
-    }
-
-    /**
-     * 关闭.
-     */
-    public static void closeResultSet(ResultSet rs) {
-        if (rs != null) {
-            try {
-                rs.close();
-            } catch (SQLException ex) {
-                logger.trace("Could not close JDBC ResultSet" + ex);
-            } catch (Throwable ex) {
-                // We don't trust the JDBC driver: It might throw RuntimeException or Error.
-                logger.trace("Unexpected exception on closing JDBC ResultSet" + ex);
-            }
-        }
-    }
-
-    /**
-     * 查询列名.
+     * @param resultSetMetaData the current meta-data to use
+     * @param columnIndex       the index of the column for the look up
+     * @return the column name to use
+     * @throws SQLException in case of lookup failure
      */
     public static String lookupColumnName(ResultSetMetaData resultSetMetaData, int columnIndex) throws SQLException {
         String name = resultSetMetaData.getColumnLabel(columnIndex);
@@ -70,7 +40,23 @@ public class JdbcUtils {
     }
 
     /**
-     * 获取ResultSet值.
+     * Retrieve a JDBC column value from a ResultSet, using the most appropriate
+     * value type. The returned value should be a detached value object, not having
+     * any ties to the active ResultSet: in particular, it should not be a Blob or
+     * Clob object but rather a byte array or String representation, respectively.
+     * <p>Uses the {@code getObject(index)} method, but includes additional "hacks"
+     * to get around Oracle 10g returning a non-standard object for its TIMESTAMP
+     * datatype and a {@code java.sql.Date} for DATE columns leaving out the
+     * time portion: These columns will explicitly be extracted as standard
+     * {@code java.sql.Timestamp} object.
+     *
+     * @param rs    is the ResultSet holding the data
+     * @param index is the column index
+     * @return the value object
+     * @throws SQLException if thrown by the JDBC API
+     * @see Blob
+     * @see Clob
+     * @see Timestamp
      */
     public static Object getResultSetValue(ResultSet rs, int index) throws SQLException {
         Object obj = rs.getObject(index);
@@ -95,73 +81,12 @@ public class JdbcUtils {
                 obj = rs.getDate(index);
             }
         } else if (obj instanceof Date) {
-            obj = rs.getTimestamp(index);
+            if ("java.sql.Timestamp".equals(rs.getMetaData().getColumnClassName(index))) {
+                obj = rs.getDate(index);
+            }
         }
+
         return obj;
     }
-
-
-    /**
-     * 获取ResultSet值(带类型).
-     *
-     * @param rs
-     * @param index
-     * @param requiredType
-     * @return
-     * @throws SQLException
-     */
-    public static Object getResultSetValue(ResultSet rs, int index, Class<?> requiredType) throws SQLException {
-        if (null == requiredType) {
-            return getResultSetValue(rs, index);
-        }
-        Object value;
-        if (String.class == requiredType) {
-            return rs.getString(index);
-        } else if (boolean.class == requiredType || Boolean.class == requiredType) {
-            value = rs.getBoolean(index);
-        } else if (byte.class == requiredType || Byte.class == requiredType) {
-            value = rs.getByte(index);
-        } else if (short.class == requiredType || Short.class == requiredType) {
-            value = rs.getShort(index);
-        } else if (int.class == requiredType || Integer.class == requiredType) {
-            value = rs.getInt(index);
-        } else if (long.class == requiredType || Long.class == requiredType) {
-            value = rs.getLong(index);
-        } else if (float.class == requiredType || Float.class == requiredType) {
-            value = rs.getFloat(index);
-        } else if (double.class == requiredType || Double.class == requiredType ||
-                Number.class == requiredType) {
-            value = rs.getDouble(index);
-        } else if (BigDecimal.class == requiredType) {
-            return rs.getBigDecimal(index);
-        } else if (java.sql.Date.class == requiredType) {
-            return rs.getDate(index);
-        } else if (Time.class == requiredType) {
-            return rs.getTime(index);
-        } else if (Timestamp.class == requiredType || Date.class == requiredType) {
-            return rs.getTimestamp(index);
-        } else if (byte[].class == requiredType) {
-            return rs.getBytes(index);
-        } else if (Blob.class == requiredType) {
-            return rs.getBlob(index);
-        } else if (Clob.class == requiredType) {
-            return rs.getClob(index);
-        } else if (requiredType.isEnum()) {
-            Object obj = rs.getObject(index);
-            if (obj instanceof String) {
-                return obj;
-            } else if (obj instanceof Number) {
-                return NumberUtils.convertNumberToTargetClass(((Number) obj), Integer.class);
-            } else {
-                return rs.getString(index);
-            }
-
-        } else {
-            return rs.getObject(index, requiredType);
-        }
-
-        return (rs.wasNull() ? null : value);
-    }
-
 
 }

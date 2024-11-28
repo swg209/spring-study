@@ -1,10 +1,12 @@
 package cn.suwg.springframework.jdbc.core;
 
 /**
- * @Author: suwg
- * @Date: 2024/11/8
+ * @description Interface to be implemented by objects that can provide SQL strings.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public interface SqlProvider {
 
     String getSql();
+
 }

@@ -1,35 +1,19 @@
 package cn.suwg.springframework.jdbc.datasource;
 
-import cn.hutool.core.lang.Assert;
 import cn.suwg.springframework.jdbc.CannotGetJdbcConnectionException;
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
+import cn.suwg.springframework.tx.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Helper class that provides static methods for obtaining JDBC {@code Connection}s
- * * from a {@link DataSource}. Includes special support for Spring-managed
- * * transactional {@code Connection}s, for example, managed by DataSourceTransactionManager
- * * or @link org.springframework.transaction.jta.JtaTransactionManager.
- *
- * @Description: 数据源工具抽象类
- * @Author: suwg
- * @Date: 2024/11/8
- * 公众号：趣研
+ * @description Helper class that provides static methods for obtaining JDBC Connections from
+ * a {@link DataSource}.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public abstract class DataSourceUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(DataSourceUtils.class);
-
-    /**
-     * 获取连接.
-     *
-     * @param dataSource
-     * @return
-     */
 
     public static Connection getConnection(DataSource dataSource) {
         try {
@@ -39,44 +23,50 @@ public abstract class DataSourceUtils {
         }
     }
 
+    /**
+     * Actually obtain a JDBC Connection from the given DataSource.
+     * Same as {@link #getConnection}, but throwing the original SQLException.
+     * <p>Is aware of a corresponding Connection bound to the current thread, for example
+     * when using {@link DataSourceTransactionManager}. Will bind a Connection to the thread
+     * if transaction synchronization is active (e.g. if in a JTA transaction).
+     *
+     * @param dataSource the DataSource to obtain Connections from
+     * @return a JDBC Connection from the given DataSource
+     * @throws SQLException if thrown by JDBC methods
+     * @see #doReleaseConnection
+     */
     public static Connection doGetConnection(DataSource dataSource) throws SQLException {
-        Assert.notNull(dataSource, "No DataSource specified");
-        Connection connection = fetchConnection(dataSource);
-        return connection;
+        ConnectionHolder conHolder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);
+        if (null != conHolder && conHolder.hasConnection()) {
+            return conHolder.getConnection();
+        }
+        return fetchConnection(dataSource);
     }
 
     private static Connection fetchConnection(DataSource dataSource) throws SQLException {
-        Connection con = dataSource.getConnection();
-        if (null == con) {
+        Connection conn = dataSource.getConnection();
+        if (null == conn) {
             throw new IllegalArgumentException("DataSource return null from getConnection():" + dataSource);
         }
-        return con;
+        return conn;
     }
 
-
-    /**
-     * 释放连接.
-     */
     public static void releaseConnection(Connection con, DataSource dataSource) {
         try {
             doReleaseConnection(con, dataSource);
-        } catch (SQLException ex) {
-            logger.debug("Could not close JDBC Connection", ex);
-        } catch (Throwable ex) {
-            logger.debug("Unexpected exception on closing JDBC Connection", ex);
+        } catch (Exception ignore) {
         }
     }
 
-    private static void doReleaseConnection(Connection con, DataSource dataSource) throws SQLException {
-        if (null == con) {
+    public static void doReleaseConnection(Connection con, DataSource dataSource) throws SQLException {
+        if (con == null) {
             return;
         }
         doCloseConnection(con, dataSource);
     }
 
-    private static void doCloseConnection(Connection con, DataSource dataSource) throws SQLException {
+    public static void doCloseConnection(Connection con, DataSource dataSource) throws SQLException {
         con.close();
     }
-
 
 }

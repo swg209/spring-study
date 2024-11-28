@@ -1,7 +1,6 @@
 package cn.suwg.springframework.jdbc.datasource;
 
 import cn.hutool.core.lang.Assert;
-import cn.suwg.springframework.beans.BeansException;
 import cn.suwg.springframework.beans.factory.InitializingBean;
 import cn.suwg.springframework.tx.transaction.CannotCreateTransactionException;
 import cn.suwg.springframework.tx.transaction.TransactionDefinition;
@@ -16,13 +15,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * 数据源事务管理器.
- *
- * @Author: suwg
- * @Date: 2024/11/25
+ * @description 数据源事务管理器
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public class DataSourceTransactionManager extends AbstractPlatformTransactionManager implements InitializingBean {
-
 
     private DataSource dataSource;
 
@@ -32,13 +29,6 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
     public DataSourceTransactionManager(DataSource dataSource) {
         setDataSource(dataSource);
         afterPropertiesSet();
-    }
-
-    @Override
-    public void afterPropertiesSet() throws BeansException {
-        if (null == getDataSource()) {
-            throw new IllegalArgumentException("Property 'datasource' is required");
-        }
     }
 
     public DataSource getDataSource() {
@@ -111,6 +101,14 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
             txObject.setConnectionHolder(null, false);
             throw new CannotCreateTransactionException("Could not open JDBC Connection for transaction", e);
         }
+
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        if (null == getDataSource()) {
+            throw new IllegalArgumentException("Property 'datasource' is required");
+        }
     }
 
     protected void prepareTransactionalConnection(Connection con, TransactionDefinition definition) throws SQLException {
@@ -130,4 +128,5 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
             this.newConnectionHolder = newConnectionHolder;
         }
     }
+
 }

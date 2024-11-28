@@ -3,10 +3,9 @@ package cn.suwg.springframework.jdbc;
 import java.sql.SQLException;
 
 /**
- * 无法获取JDBC连接异常.
- *
- * @Author: suwg
- * @Date: 2024/11/8
+ * @description Fatal exception thrown when we can't connect to an RDBMS using JDBC.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public class CannotGetJdbcConnectionException extends RuntimeException {
 

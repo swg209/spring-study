@@ -1,6 +1,7 @@
 package cn.suwg.springframework.test.bean;
 
-import cn.suwg.springframework.jdbc.support.JdbcTemplate;
+import cn.suwg.springframework.jdbc.UncategorizedSQLException;
+import cn.suwg.springframework.jdbc.core.JdbcTemplate;
 import cn.suwg.springframework.tx.transaction.annotation.Transactional;
 
 /**
@@ -14,7 +15,7 @@ public class JdbcService {
     /**
      * 使用注解事务.
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = UncategorizedSQLException.class)
     public void saveData(JdbcTemplate jdbcTemplate) {
         System.out.println("保存数据,带事务处理");
         jdbcTemplate.execute("insert into user (id, username) values (4, '小苏1')");

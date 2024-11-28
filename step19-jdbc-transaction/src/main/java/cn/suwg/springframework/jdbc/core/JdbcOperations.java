@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * jdbc操作接口.
- *
- * @Author: suwg
- * @Date: 2024/11/8
+ * @description Interface specifying a basic set of JDBC operations.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public interface JdbcOperations {
 
@@ -15,56 +14,10 @@ public interface JdbcOperations {
 
     void execute(String sql);
 
-
-    //---------------------------------------------------------------------
-    //** query **
-    //---------------------------------------------------------------------
-
     <T> T query(String sql, ResultSetExtractor<T> res);
-
-    <T> T query(String sql, Object[] args, ResultSetExtractor<T> rse);
 
     <T> List<T> query(String sql, RowMapper<T> rowMapper);
 
-    <T> List<T> query(String sql, Object[] args, RowMapper<T> rowMapper);
-
-    <T> T query(String sql, PreparedStatementSetter pss, ResultSetExtractor<T> rse);
-
-
-    //---------------------------------------------------------------------
-    //** queryForList **
-    //---------------------------------------------------------------------
     List<Map<String, Object>> queryForList(String sql);
-
-    /**
-     * 查询数据库表中某一个字段.
-     */
-    <T> List<T> queryForList(String sql, Class<T> elementType);
-
-    <T> List<T> queryForList(String sql, Class<T> elementType, Object... args);
-
-    List<Map<String, Object>> queryForList(String sql, Object... args);
-
-
-    //---------------------------------------------------------------------
-    //** queryForObject **
-    //---------------------------------------------------------------------
-
-    <T> T queryForObject(String sql, RowMapper<T> rowMapper);
-
-    <T> T queryForObject(String sql, Object[] args, RowMapper<T> rowMapper);
-
-    /**
-     * 查询数据库表中 某一条记录的 某一个字段.
-     */
-    <T> T queryForObject(String sql, Class<T> requiredType);
-
-
-    //---------------------------------------------------------------------
-    //** queryForMap **
-    //---------------------------------------------------------------------
-    Map<String, Object> queryForMap(String sql);
-
-    Map<String, Object> queryForMap(String sql, Object... args);
 
 }

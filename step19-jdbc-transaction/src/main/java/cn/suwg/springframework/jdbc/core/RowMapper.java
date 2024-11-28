@@ -4,10 +4,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * sql行转换.
- *
- * @Author: suwg
- * @Date: 2024/11/8
+ * @description An interface used by {@link JdbcTemplate} for mapping rows of a
+ * {@link ResultSet} on a per-row basis.
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public interface RowMapper<T> {
 

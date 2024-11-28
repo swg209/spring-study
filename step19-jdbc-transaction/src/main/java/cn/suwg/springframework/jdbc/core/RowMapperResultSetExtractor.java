@@ -8,11 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 将查询结果的ResultSet逐行的进行转换提取，转换成map，放到list里.
- *
- * @Author: suwg
- * @Date: 2024/11/8
- * 公众号： 趣研
+ * @description 行转列
+ * @date 2022/3/16
+ * /CodeDesignTutorials
  */
 public class RowMapperResultSetExtractor<T> implements ResultSetExtractor<List<T>> {
 
@@ -20,14 +18,17 @@ public class RowMapperResultSetExtractor<T> implements ResultSetExtractor<List<T
 
     private final int rowsExpected;
 
+    /**
+     * Create a new RowMapperResultSetExtractor.
+     *
+     * @param rowMapper the RowMapper which creates an object for each row
+     */
     public RowMapperResultSetExtractor(RowMapper<T> rowMapper) {
         this(rowMapper, 0);
     }
 
-
     public RowMapperResultSetExtractor(RowMapper<T> rowMapper, int rowsExpected) {
         Assert.notNull(rowMapper, "RowMapper is required");
-
         this.rowMapper = rowMapper;
         this.rowsExpected = rowsExpected;
     }
@@ -41,4 +42,5 @@ public class RowMapperResultSetExtractor<T> implements ResultSetExtractor<List<T
         }
         return results;
     }
+
 }
